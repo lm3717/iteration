@@ -113,4 +113,93 @@ sim_mean_sd(50, 12, 3)
 
 ```
 
+## Revisit some old code
+
+```{r}
+fellowship_df =
+  read_excel("data/LotR_Words.xlsx", range = "B3:D6") |> 
+  mutate(movie = "fellowship")
+
+two_tower_df =
+  read_excel("data/LotR_Words.xlsx", range = "F3:H6") |> 
+  mutate(movie = "two_towers")
+
+return_df =
+  read_excel("data/LotR_Words.xlsx", range = "J3:L6") |> 
+  mutate(movie = "return_of_the_king")
+```
+
+## A function for that
+
+```{r}
+source("source/lotr_import.R")
+```
+
+
+```{r}
+lotr_import(cell_range = "B3:D6", movie_title = "fellowship")
+
+```
+
+NSDUH
+
+```{r}
+url = "https://www.samhsa.gov/data/sites/default/files/NSDUHsaeShortTermCHG2015/NSDUHsaeShortTermCHG2015.htm"
+
+drug_use_html = read_html(url)
+
+marj_df = 
+  drug_use_html |> 
+  html_table() |> 
+  nth(1) |>
+  slice(-1) |> 
+  select(-contains("P Value")) |>
+  pivot_longer(
+    -State,
+    names_to = "age_year", 
+    values_to = "percent") |>
+  separate(age_year, into = c("age", "year"), sep = "\\(") |>
+  mutate(
+    year = str_replace(year, "\\)", ""),
+    percent = str_replace(percent, "[a-c]$", ""),
+    percent = as.numeric(percent)) |>
+  filter(!(State %in% c("Total U.S.", "Northeast", "Midwest", "South", "West")))
+
+marj_df = 
+  drug_use_html |> 
+  html_table() |> 
+  nth(4) |>
+  slice(-1) |> 
+  select(-contains("P Value")) |>
+  pivot_longer(
+    -State,
+    names_to = "age_year", 
+    values_to = "percent") |>
+  separate(age_year, into = c("age", "year"), sep = "\\(") |>
+  mutate(
+    year = str_replace(year, "\\)", ""),
+    percent = str_replace(percent, "[a-c]$", ""),
+    percent = as.numeric(percent)) |>
+  filter(!(State %in% c("Total U.S.", "Northeast", "Midwest", "South", "West")))
+```
+
+using function
+
+```{r}
+source("source/nsduh_process.R")
+```
+
+```{r}
+marj_df =
+  nsduh_process(html = drug_use_html, table_num = 1)
+
+cocaine_df = 
+  nsduh_process(html = drug_use_html, table_num = 4)
+
+heroine_df = 
+  nsduh_process(html = drug_use_html, table_num = 5)
+```
+
+## Scoping
+
 
