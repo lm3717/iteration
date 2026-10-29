@@ -64,5 +64,53 @@ z_scores(rpois(40, lambda = 12))
 
 ```
 
+## Mean and sd
+
+```{r}
+mean_and_sd = function(x) {
+  
+  return_df = 
+    tibble(
+      mean = mean(x), 
+      sd = sd(x)
+    )
+  
+  return(return_df)
+
+}
+
+mean_and_sd(x_vec)
+```
+
+```{r}
+source("source/mean_and_sd.R")
+```
+
+
+## Another function
+
+```{r}
+sim_df =
+  tibble(
+    x = rnorm(n = 40, mean = 12, sd = 3)
+  )
+
+sim_df |> 
+  summarise(
+    mean = mean(x),
+    sd = sd(x)
+  )
+```
+
+```{r}
+source("source/sim_mean_sd.R")
+```
+
+```{r}
+sim_mean_sd(n_obs = 40, mu = 12, sigma = 3)
+
+sim_mean_sd(50, 12, 3)
+
+```
 
 
