@@ -1,5 +1,5 @@
 ---
-title: "Writing Functions"
+title: "Simulation"
 author: "Lina Marcinczyk"
 date: "2026-10-29"
 output: html_document
@@ -100,10 +100,24 @@ sim_results_df |>
     sample_size = str_c("n = ", sample_size),
     sample_size = fct_inorder(sample_size)
   ) |> 
-  ggplot(aes(x = sample_size, y = mean)) +
+  ggplot(aes(x = sample_size, y = mean, fill = sample_size)) +
   geom_boxplot()
 ```
 
+
+
+```{r}
+sim_results_df |> 
+  pivot_longer(
+    mean:sd,
+    names_to = "parameter", 
+    values_to = "estimate") |> 
+  group_by(parameter, sample_size) |> 
+  summarize(
+    emp_mean = mean(estimate),
+    emp_var = var(estimate)) |> 
+  knitr::kable(digits = 3)
+```
 
 
 
