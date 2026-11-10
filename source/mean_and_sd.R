@@ -23,5 +23,3 @@ mean_and_sd = function(x) {
   return(return_df)
   
 }
-
-mean_and_sd(x_vec)

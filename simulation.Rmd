@@ -1,0 +1,109 @@
+---
+title: "Writing Functions"
+author: "Lina Marcinczyk"
+date: "2026-10-29"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(readxl)
+library(p8105.datasets)
+
+
+source("source/mean_and_sd.R")
+source("source/sim_mean_sd.R") 
+source("source/nsduh_process.R")
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+set.seed(1236)
+```
+
+## Mean and sd
+
+```{r}
+sim_mean_sd(n_obs = 30, 3, 1.2)
+```
+
+keeping track of results 
+
+```{r}
+output = vector("list", 1000)
+
+for (i in 1:10000) {
+  output[[i]] = sim_mean_sd(n_obs = 30)
+}
+
+sim_results = bind_rows(output)
+```
+
+```{r}
+output |> 
+  bind_rows() |> 
+  summarise(
+    emp_m = mean(mean), 
+    emp_sd = sd(mean)
+  )
+```
+
+```{r}
+output |> 
+  bind_rows() |> 
+  ggplot(aes(x = mean)) +
+  geom_density()
+```
+
+Using tibbles and map instead
+
+```{r}
+sim_results_df =
+  tibble(
+    samp_size = rep(30, 1000)
+  ) |> 
+  mutate(
+    est_df = map(samp_size, sim_mean_sd)
+  )
+```
+
+
+```{r}
+sim_results_df = 
+  expand_grid(
+    sample_size = c(30, 60, 120, 240),
+    iter = 1:1000
+  ) |> 
+  mutate(
+    estimate_df = map(sample_size, sim_mean_sd)
+  ) |> 
+  unnest(estimate_df)
+```
+
+```{r}
+sim_results_df |> 
+  mutate(
+    sample_size = str_c("n = ", sample_size),
+    sample_size = fct_inorder(sample_size)
+  ) |> 
+  ggplot(aes(x = sample_size, y = mean)) +
+  geom_boxplot()
+```
+
+
+
+

@@ -12,9 +12,7 @@ sim_mean_sd = function(n_obs, mu, sigma) {
   
   sim_df =
     tibble(
-      x = rnorm(n = n_obs, mean = mu, sd = sigma)
-    )
-  
+      x = rnorm(n = n_obs, mean = 5))
   
   return_df = 
     sim_df |> 
