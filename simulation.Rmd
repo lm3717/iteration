@@ -16,6 +16,8 @@ source("source/mean_and_sd.R")
 source("source/sim_mean_sd.R") 
 source("source/nsduh_process.R")
 
+source("source/sim_slr.R") 
+
 knitr::opts_chunk$set(
   fig.width = 6,
   fig.asp = .6,
@@ -41,7 +43,7 @@ set.seed(1236)
 sim_mean_sd(n_obs = 30, 3, 1.2)
 ```
 
-keeping track of results 
+#### keeping track of results 
 
 ```{r}
 output = vector("list", 1000)
@@ -69,7 +71,7 @@ output |>
   geom_density()
 ```
 
-Using tibbles and map instead
+## Using tibbles and map instead
 
 ```{r}
 sim_results_df =
@@ -104,7 +106,7 @@ sim_results_df |>
   geom_boxplot()
 ```
 
-
+### Looking at number summaries
 
 ```{r}
 sim_results_df |> 
@@ -117,6 +119,61 @@ sim_results_df |>
     emp_mean = mean(estimate),
     emp_var = var(estimate)) |> 
   knitr::kable(digits = 3)
+```
+
+# SLR !
+Generate once:
+
+```{r}
+sim_data = 
+    tibble(
+      x = rnorm(30, mean = 1, sd = 1),
+      y = 2 * x + rnorm(30, 0, 1)
+    )
+  
+  
+
+ sim_data |> 
+   ggplot(aes(x = x, y = y)) +
+   geom_point() +
+   geom_smooth(method = "lm", se = FALSE)
+```
+
+turned into a function (source/sim_slr.R)
+
+```{r}
+sim_slr(30)
+```
+
+```{r}
+slr_results_df = 
+  tibble(
+    samp_size = rep(30, 1000)
+  ) |> 
+  mutate(
+    est_df = map(samp_size, sim_slr)
+  ) |> 
+  unnest(est_df)
+```
+
+Is it right
+```{r}
+slr_results_df |> 
+  summarize(
+    b0_mean = mean(beta0_hat), 
+    b0_se = sd(beta0_hat)
+  )
+```
+
+results
+
+```{r}
+slr_results_df |> 
+  ggplot(aes(x = beta0_hat, y = beta1_hat, color = beta0_hat)) +
+  geom_point() +
+  theme(
+    legend.position = "none"
+  )
 ```
 
 
